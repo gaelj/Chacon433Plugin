@@ -1,14 +1,14 @@
 """
-# Domoticz Advanced Thermostat Python Plugin
-
-This thermostat plugin allows precise temperature management and regulation per individual room
+# Domoticz Chacon 433 MHz Python Plugin
 
 ## Installation
 
 ```bash
 cd ~
-git clone https://github.com/gaelj/DomoticzAdvancedThermostatPlugin.git domoticz/plugins/DAT
+git clone https://github.com/gaelj/Chacon433Plugin.git domoticz/plugins/Chacon433Plugin
 chmod +x domoticz/plugins/DAT/plugin.py
+ln -Tsf DomoticzWrapper/DomoticzWrapperClass.py DomoticzWrapperClass.py
+ln -Tsf DomoticzWrapper/DomoticzPluginHelper.py DomoticzPluginHelper.py
 sudo systemctl restart domoticz.service
 ```
 
@@ -170,7 +170,7 @@ def onStart():
 
     LightSwitch_Switch_Blinds = DomoticzDeviceTypes.LightSwitch_Switch_Blinds()
 
-    z.InitDevice('Thermostat Control', DeviceUnits.DeviceSwitch,
+    z.InitDevice('Shutter Control', DeviceUnits.DeviceSwitch,
                  DeviceType=LightSwitch_Switch_Blinds,
                  Used=True,
                  defaultNValue=0,
