@@ -1,0 +1,4 @@
+[submodule "DomoticzWrapper"]
+	path = DomoticzWrapper
+	url = https://github.com/gaelj/DomoticzWrapper.git
+	branch = master
