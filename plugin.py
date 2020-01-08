@@ -55,6 +55,8 @@ import Domoticz
 from datetime import datetime, timedelta
 import time
 from enum import IntEnum
+import subprocess
+
 z = None
 pluginDevices = None
 
@@ -65,7 +67,7 @@ class PluginConfig:
         self.fldChacon = r'/home/pi/433Utils/RPi_utils/'
         self.cmdChacon = 'codesend'
         self.ChaconCode = '0FF'
-        self.DIOShutterCode = '11111111'
+        self.DIOShutterCode = z.Parameters['Mode1'] #'11111111'
         self.fldDio = r'/home/pi/hcc/'
         self.cmdDio = 'radioEmission'
         self.idx = 0
@@ -116,11 +118,13 @@ class PluginDevices:
 class ShutterActuator:
     """Shutter actuator"""
 
-    def __init__(self, idx):
+    def __init__(self, idx, shutterNumber):
         global z
         global pluginDevices
         self.idx = idx
         self.state = None
+        self.shutterNumber = z.Parameters['Mode2']
+        self.config = PluginConfig()
 
     def SetValue(self, state: bool):
         global z
@@ -130,6 +134,10 @@ class ShutterActuator:
             self.state = state
             z.DomoticzAPI(
                 "type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, command))
+
+        stateString = 'on' if state else 'off'        
+        print(self.config.fldDio + self.config.cmdDio, '0', self.config.DIOShutterCode, self.shutterNumber, stateString)        
+        subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
 
     def Read(self) -> bool:
         global z
