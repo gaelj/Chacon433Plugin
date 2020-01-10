@@ -129,12 +129,6 @@ class ShutterActuator:
     def SetValue(self, state: bool):
         global z
         global pluginDevices
-        if self.state != state:
-            command = "On" if state else "Off"
-            self.state = state
-            z.DomoticzAPI(
-                "type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, command))
-
         stateString = 'on' if state else 'off'        
         z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
