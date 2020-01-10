@@ -67,7 +67,7 @@ class PluginConfig:
         self.fldChacon = r'/home/pi/433Utils/RPi_utils/'
         self.cmdChacon = 'codesend'
         self.ChaconCode = '0FF'
-        self.DIOShutterCode = z.Parameters['Mode1'] #'11111111'
+        self.DIOShutterCode = z.Parameters.Mode1 #'11111111'
         self.fldDio = r'/home/pi/hcc/'
         self.cmdDio = 'radioEmission'
         self.idx = 0
@@ -123,7 +123,7 @@ class ShutterActuator:
         global pluginDevices
         self.idx = idx
         self.state = None
-        self.shutterNumber = z.Parameters['Mode2']
+        self.shutterNumber = z.Parameters.Mode2
         self.config = PluginConfig()
 
     def SetValue(self, state: bool):
