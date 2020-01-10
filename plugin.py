@@ -204,7 +204,7 @@ def onCommand(Unit, Command, Level, Color):
     else:
         value = Level
     du = DeviceUnits(Unit)
-    pluginDevices.switches[du].SetValue(value)
+    pluginDevices.shutter.SetValue(value)
 
 
 def onHeartbeat():
