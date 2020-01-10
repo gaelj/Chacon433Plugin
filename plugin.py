@@ -136,7 +136,7 @@ class ShutterActuator:
                 "type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, command))
 
         stateString = 'on' if state else 'off'        
-        z.WriteLog(self.config.fldDio + self.config.cmdDio, '0', self.config.DIOShutterCode, self.shutterNumber, stateString)        
+        z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
 
     def Read(self) -> bool:
