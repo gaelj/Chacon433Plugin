@@ -110,7 +110,7 @@ class VirtualSwitch:
 class PluginDevices:
     def __init__(self):
         self.config = PluginConfig()
-        self.shutter = ShutterActuator(self.config.idx, self.config.DIOShutterCode)
+        self.shutter = ShutterActuator(DeviceUnits.DeviceSwitch, self.config.DIOShutterCode)
         self.switches = dict([(du, VirtualSwitch(du)) for du in DeviceUnits])
         self.shutterControlSwitch = self.switches[DeviceUnits.DeviceSwitch]
 
@@ -121,7 +121,7 @@ class ShutterActuator:
     def __init__(self, idx, shutterNumber):
         global z
         global pluginDevices
-        self.idx = idx
+        self.idx = (int)idx
         self.state = None
         self.shutterNumber = z.Parameters.Mode2
         self.config = PluginConfig()
