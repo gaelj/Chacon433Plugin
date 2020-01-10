@@ -121,7 +121,7 @@ class ShutterActuator:
     def __init__(self, idx, shutterNumber):
         global z
         global pluginDevices
-        self.idx = (int)idx
+        self.idx = idx
         self.state = None
         self.shutterNumber = z.Parameters.Mode2
         self.config = PluginConfig()
