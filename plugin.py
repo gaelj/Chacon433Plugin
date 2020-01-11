@@ -102,7 +102,7 @@ class ShutterActuator:
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode +
                         ' ' + str(self.shutterNumber) + ' ' + stateString, shell=True)
 
-        nValue = 1 if state else 0
+        nValue = 0 if state else 1
         sValue = ""
         z.Devices[self.pluginDeviceUnit].Update(nValue=nValue, sValue=sValue)
         self.value = state
