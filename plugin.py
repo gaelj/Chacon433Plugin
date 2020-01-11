@@ -129,7 +129,7 @@ def onStart():
     deviceUnit = 1
 
     for shutterId in shutterIds:
-        z.InitDevice('Shutter Control ' + deviceUnit, deviceUnit,
+        z.InitDevice('Shutter Control ' + str(deviceUnit), deviceUnit,
                     DeviceType=LightSwitch_Switch_Blinds,
                     Used=True,
                     defaultNValue=0,
