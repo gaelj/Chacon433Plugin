@@ -79,7 +79,7 @@ class PluginConfig:
 class PluginDevices:
     def __init__(self, shutterIds):
         self.config = PluginConfig()
-        self.shutters = dict([(int(x), ShutterActuator(i, x))
+        self.shutters = dict([(int(i + 1), ShutterActuator(i, x))
                               for i, x in enumerate(shutterIds)])
 
 
