@@ -5,8 +5,11 @@
 
 ```bash
 cd ~
-git clone https://github.com/gaelj/Chacon433Plugin.git domoticz/plugins/Chacon433Plugin
-chmod +x domoticz/plugins/DAT/plugin.py
+git clone https://github.com/gaelj/Chacon433Plugin.git ~/domoticz/plugins/Chacon433Plugin
+git submodule init
+git submodule update
+chmod +x ~/domoticz/plugins/Chacon433Plugin/plugin.py
+cd ~/domoticz/plugins/Chacon433Plugin
 ln -Tsf DomoticzWrapper/DomoticzWrapperClass.py DomoticzWrapperClass.py
 ln -Tsf DomoticzWrapper/DomoticzPluginHelper.py DomoticzPluginHelper.py
 sudo systemctl restart domoticz.service
@@ -29,7 +32,7 @@ For more details, see [Using Python Plugins](https://www.domoticz.com/wiki/Using
     </description>
 
     <params>
-        <param field="Address"  label="Domoticz IP Address"                                          width="200px" required="true"  default="localhost" />
+        <param field="Address"  label="Domoticz IP Address"                                          width="200px" required="true"  default="127.0.0.1" />
         <param field="Port"     label="Port"                                                         width="40px"  required="true"  default="8080"      />
         <param field="Username" label="Username"                                                     width="200px" required="false" default=""          />
         <param field="Password" label="Password"                                                     width="200px" required="false" default=""          />
