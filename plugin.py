@@ -51,14 +51,15 @@ For more details, see [Using Python Plugins](https://www.domoticz.com/wiki/Using
 </plugin>
 """
 
+
 import Domoticz
 from datetime import datetime, timedelta
 import time
 from enum import IntEnum
 import subprocess
-
 z = None
 pluginDevices = None
+
 
 class PluginConfig:
     """Plugin configuration (singleton)"""
@@ -67,7 +68,7 @@ class PluginConfig:
         self.fldChacon = r'/home/pi/433Utils/RPi_utils/'
         self.cmdChacon = 'codesend'
         self.ChaconCode = '0FF'
-        self.DIOShutterCode = z.Parameters.Mode1 #'11111111'
+        self.DIOShutterCode = z.Parameters.Mode1  # '11111111'
         self.fldDio = r'/home/pi/hcc/'
         self.cmdDio = 'radioEmission'
 
@@ -75,7 +76,8 @@ class PluginConfig:
 class PluginDevices:
     def __init__(self, shutterIds):
         self.config = PluginConfig()
-        self.shutters = dict([(i, ShutterActuator(i, x)) for i, x in enumerate(shutterIds)])
+        self.shutters = dict([(i, ShutterActuator(i, x))
+                              for i, x in enumerate(shutterIds)])
 
 
 class ShutterActuator:
@@ -94,15 +96,16 @@ class ShutterActuator:
         global pluginDevices
         state = not state
         self.state = state
-        stateString = 'on' if self.state else 'off'        
-        z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
-        subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
-        # z.DomoticzAPI("type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, "On" if state else "Off"))
-        
+        stateString = 'on' if self.state else 'off'
+        z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' +
+                   self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
+        subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode +
+                        ' ' + str(self.shutterNumber) + ' ' + stateString, shell=True)
+
         nValue = 1 if state else 0
         sValue = ""
         z.Devices[self.pluginDeviceUnit].Update(nValue=nValue, sValue=sValue)
-        self.value = value
+        self.value = state
 
     def Read(self) -> bool:
         global z
@@ -111,22 +114,6 @@ class ShutterActuator:
         self.value = int(d.sValue) if d.sValue is not None and d.sValue != "" else int(
             d.nValue) if d.nValue is not None else None
         return self.value
-
-
-    # def Read(self) -> bool:
-    #     global z
-    #     global pluginDevices
-    #     devicesAPI = z.DomoticzAPI(
-    #         "type=devices&filter=light&used=true&order=Name")
-    #     if devicesAPI:
-    #         for device in devicesAPI["result"]:
-    #             idx = int(device["idx"])
-    #             if idx != self.idx:
-    #                 continue
-    #             if "Status" in device:
-    #                 self.state = device["Status"] == "On"
-    #     return self.state
-
 
 
 def onStart():
@@ -141,15 +128,16 @@ def onStart():
 
     LightSwitch_Switch_Blinds = DomoticzDeviceTypes.LightSwitch_Switch_Blinds()
 
-    shutterIds = [x.strip() for x in z.Parameters.Mode2.split(',') if len(x.strip()) > 0]
+    shutterIds = [x.strip()
+                  for x in z.Parameters.Mode2.split(',') if len(x.strip()) > 0]
     deviceUnit = 1
 
     for shutterId in shutterIds:
         z.InitDevice('Shutter Control ' + str(deviceUnit), deviceUnit,
-                    DeviceType=LightSwitch_Switch_Blinds,
-                    Used=True,
-                    defaultNValue=0,
-                    defaultSValue="0")
+                     DeviceType=LightSwitch_Switch_Blinds,
+                     Used=True,
+                     defaultNValue=0,
+                     defaultSValue="0")
         deviceUnit = deviceUnit + 1
 
     pluginDevices = PluginDevices(shutterIds)
@@ -171,7 +159,8 @@ def onCommand(Unit, Command, Level, Color):
         value = 0
     else:
         value = Level
-    z.WriteLog("Received cmd " + str(Command) + " with level: " + str(Level) + " for unit " + str(Unit))
+    z.WriteLog("Received cmd " + str(Command) + " with level: " +
+               str(Level) + " for unit " + str(Unit))
     pluginDevices.shutters[(int(Unit))].SetValue(value)
 
 
