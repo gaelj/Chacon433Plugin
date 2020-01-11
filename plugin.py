@@ -145,6 +145,8 @@ def onStart():
         deviceUnit = deviceUnit + 1
 
     pluginDevices = PluginDevices(shutterIds)
+    for unit in z.InitializedDeviceUnits:
+        z.WriteLog("Initialized unit: " + str(unit))
 
 
 def onStop():
