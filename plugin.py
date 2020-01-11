@@ -91,7 +91,7 @@ class ShutterActuator:
         global pluginDevices
         self.state = None
         self.shutterNumber = shutterNumber
-        self.pluginDeviceUnit = pluginDeviceUnit
+        self.pluginDeviceUnit = int(pluginDeviceUnit)
         self.config = PluginConfig()
 
     def SetValue(self, state: bool):
@@ -102,6 +102,7 @@ class ShutterActuator:
         stateString = 'on' if self.state else 'off'
         z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' +
                    self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
+        z.WriteLog("Unit: " + str(self.pluginDeviceUnit))
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode +
                         ' ' + str(self.shutterNumber) + ' ' + stateString, shell=True)
 
