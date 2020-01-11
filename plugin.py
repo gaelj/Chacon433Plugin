@@ -108,13 +108,13 @@ class ShutterActuator:
 
         nValue = 0 if state else 1
         sValue = ""
-        z.Devices[self.pluginDeviceUnit].Update(nValue=nValue, sValue=sValue)
+        z.Devices[self.pluginDeviceUnit + 1].Update(nValue=nValue, sValue=sValue)
         self.value = state
 
     def Read(self) -> bool:
         global z
         global pluginDevices
-        d = z.Devices[self.pluginDeviceUnit]
+        d = z.Devices[self.pluginDeviceUnit + 1]
         self.value = int(d.sValue) if d.sValue is not None and d.sValue != "" else int(
             d.nValue) if d.nValue is not None else None
         return self.value
