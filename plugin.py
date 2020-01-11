@@ -76,6 +76,8 @@ class PluginConfig:
 class PluginDevices:
     def __init__(self, shutterIds):
         self.config = PluginConfig()
+        for device in z.Devices:
+            z.WriteLog("-> Device " + str(device))
         self.shutters = dict([(i, ShutterActuator(x)) for i, x in enumerate(shutterIds)])
 
 
@@ -92,10 +94,12 @@ class ShutterActuator:
     def SetValue(self, state: bool):
         global z
         global pluginDevices
-        self.state = not state
+        state = not state
+        self.state = state
         stateString = 'on' if self.state else 'off'        
         z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
+        z.DomoticzAPI("type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, "On" if state else "Off"))
 
     # def Read(self) -> bool:
     #     global z
@@ -155,6 +159,7 @@ def onCommand(Unit, Command, Level, Color):
         value = 0
     else:
         value = Level
+    z.WriteLog("Received cmd " + str(Command) + " with level: " + str(Level) + " for unit " + str(Unit))
     pluginDevices.shutters[(int(Unit))].SetValue(value)
 
 
