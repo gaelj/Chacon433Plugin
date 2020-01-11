@@ -70,7 +70,6 @@ class PluginConfig:
         self.DIOShutterCode = z.Parameters.Mode1 #'11111111'
         self.fldDio = r'/home/pi/hcc/'
         self.cmdDio = 'radioEmission'
-        self.idx = 0
 
 
 class PluginDevices:
@@ -78,18 +77,19 @@ class PluginDevices:
         self.config = PluginConfig()
         for device in z.Devices:
             z.WriteLog("-> Device " + str(device))
-        self.shutters = dict([(i, ShutterActuator(x)) for i, x in enumerate(shutterIds)])
+        self.shutters = dict([(i, ShutterActuator(i, x)) for i, x in enumerate(shutterIds)])
 
 
 class ShutterActuator:
     """Shutter actuator"""
 
-    def __init__(self, shutterNumber):
+    def __init__(self, idx, shutterNumber):
         global z
         global pluginDevices
         self.state = None
         self.shutterNumber = shutterNumber
         self.config = PluginConfig()
+        self.idx = idx
 
     def SetValue(self, state: bool):
         global z
