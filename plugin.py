@@ -75,17 +75,18 @@ class PluginConfig:
 class PluginDevices:
     def __init__(self, shutterIds):
         self.config = PluginConfig()
-        self.shutters = dict([(i, ShutterActuator(x)) for i, x in enumerate(shutterIds)])
+        self.shutters = dict([(i, ShutterActuator(i, x)) for i, x in enumerate(shutterIds)])
 
 
 class ShutterActuator:
     """Shutter actuator"""
 
-    def __init__(self, shutterNumber):
+    def __init__(self, pluginDeviceUnit, shutterNumber):
         global z
         global pluginDevices
         self.state = None
         self.shutterNumber = shutterNumber
+        self.pluginDeviceUnit = pluginDeviceUnit
         self.config = PluginConfig()
 
     def SetValue(self, state: bool):
@@ -100,13 +101,13 @@ class ShutterActuator:
         
         nValue = 1 if state else 0
         sValue = ""
-        z.Devices[self.pluginDeviceUnit.value].Update(nValue=nValue, sValue=sValue)
+        z.Devices[self.pluginDeviceUnit].Update(nValue=nValue, sValue=sValue)
         self.value = value
 
     def Read(self) -> bool:
         global z
         global pluginDevices
-        d = z.Devices[self.pluginDeviceUnit.value]
+        d = z.Devices[self.pluginDeviceUnit]
         self.value = int(d.sValue) if d.sValue is not None and d.sValue != "" else int(
             d.nValue) if d.nValue is not None else None
         return self.value
