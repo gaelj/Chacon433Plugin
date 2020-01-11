@@ -75,21 +75,18 @@ class PluginConfig:
 class PluginDevices:
     def __init__(self, shutterIds):
         self.config = PluginConfig()
-        for device in z.Devices:
-            z.WriteLog("-> Device " + str(device))
-        self.shutters = dict([(i, ShutterActuator(i, x)) for i, x in enumerate(shutterIds)])
+        self.shutters = dict([(i, ShutterActuator(x)) for i, x in enumerate(shutterIds)])
 
 
 class ShutterActuator:
     """Shutter actuator"""
 
-    def __init__(self, idx, shutterNumber):
+    def __init__(self, shutterNumber):
         global z
         global pluginDevices
         self.state = None
         self.shutterNumber = shutterNumber
         self.config = PluginConfig()
-        self.idx = idx
 
     def SetValue(self, state: bool):
         global z
@@ -99,7 +96,21 @@ class ShutterActuator:
         stateString = 'on' if self.state else 'off'        
         z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
-        z.DomoticzAPI("type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, "On" if state else "Off"))
+        # z.DomoticzAPI("type=command&param=switchlight&idx={}&switchcmd={}".format(self.idx, "On" if state else "Off"))
+        
+        nValue = 1 if state else 0
+        sValue = ""
+        z.Devices[self.pluginDeviceUnit.value].Update(nValue=nValue, sValue=sValue)
+        self.value = value
+
+    def Read(self) -> bool:
+        global z
+        global pluginDevices
+        d = z.Devices[self.pluginDeviceUnit.value]
+        self.value = int(d.sValue) if d.sValue is not None and d.sValue != "" else int(
+            d.nValue) if d.nValue is not None else None
+        return self.value
+
 
     # def Read(self) -> bool:
     #     global z
