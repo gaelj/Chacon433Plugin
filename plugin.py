@@ -34,7 +34,7 @@ For more details, see [Using Python Plugins](https://www.domoticz.com/wiki/Using
         <param field="Username" label="Username"                                                     width="200px" required="false" default=""          />
         <param field="Password" label="Password"                                                     width="200px" required="false" default=""          />
         <param field="Mode1" label="DIOShutterCode" width="200px" required="true" />
-        <param field="Mode2" label="Shutter index" width="200px" required="true" default="0"/>
+        <param field="Mode2" label="Shutter indexes (csv)" width="200px" required="true" default="0"/>
         <param field="Mode3" label="Logging Level" width="200px">
             <options>
                 <option label="Normal" value="Normal" default="true"/>
@@ -72,58 +72,21 @@ class PluginConfig:
         self.cmdDio = 'radioEmission'
         self.idx = 0
 
-class DeviceUnits(IntEnum):
-    """Unit numbers of each virtual switch"""
-    DeviceSwitch = 1
-
-
-class VirtualSwitch:
-    """Virtual switch, On/Off or multi-position"""
-
-    def __init__(self, pluginDeviceUnit: DeviceUnits):
-        global z
-        global pluginDevices
-        self.pluginDeviceUnit = pluginDeviceUnit
-        self.value = None
-
-    def SetValue(self, value):
-        global z
-        global pluginDevices
-        nValue = 1 if int(value) > 0 else 0
-        if value in (0, 1):
-            sValue = ""
-        else:
-            sValue = str(value)
-        z.Devices[self.pluginDeviceUnit.value].Update(
-            nValue=nValue, sValue=sValue)
-        self.value = value
-
-    def Read(self):
-        global z
-        global pluginDevices
-        d = z.Devices[self.pluginDeviceUnit.value]
-        self.value = int(d.sValue) if d.sValue is not None and d.sValue != "" else int(
-            d.nValue) if d.nValue is not None else None
-        return self.value
-
 
 class PluginDevices:
-    def __init__(self):
+    def __init__(self, shutterIds):
         self.config = PluginConfig()
-        self.shutter = ShutterActuator(DeviceUnits.DeviceSwitch, self.config.DIOShutterCode)
-        self.switches = dict([(du, VirtualSwitch(du)) for du in DeviceUnits])
-        self.shutterControlSwitch = self.switches[DeviceUnits.DeviceSwitch]
+        self.shutters = dict([(i, ShutterActuator(x)) for x, i in enumerate(shutterIds)])
 
 
 class ShutterActuator:
     """Shutter actuator"""
 
-    def __init__(self, idx, shutterNumber):
+    def __init__(self, shutterNumber):
         global z
         global pluginDevices
-        self.idx = idx
         self.state = None
-        self.shutterNumber = z.Parameters.Mode2
+        self.shutterNumber = shutterNumber
         self.config = PluginConfig()
 
     def SetValue(self, state: bool):
@@ -134,36 +97,25 @@ class ShutterActuator:
         z.WriteLog(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString)
         subprocess.call(self.config.fldDio + self.config.cmdDio + ' 0 ' + self.config.DIOShutterCode + ' ' + str(self.shutterNumber) + ' ' + stateString, shell = True)
 
-    def Read(self) -> bool:
-        global z
-        global pluginDevices
-        devicesAPI = z.DomoticzAPI(
-            "type=devices&filter=light&used=true&order=Name")
-        if devicesAPI:
-            for device in devicesAPI["result"]:
-                idx = int(device["idx"])
-                if idx != self.idx:
-                    continue
-                if "Status" in device:
-                    self.state = device["Status"] == "On"
-        return self.state
+    # def Read(self) -> bool:
+    #     global z
+    #     global pluginDevices
+    #     devicesAPI = z.DomoticzAPI(
+    #         "type=devices&filter=light&used=true&order=Name")
+    #     if devicesAPI:
+    #         for device in devicesAPI["result"]:
+    #             idx = int(device["idx"])
+    #             if idx != self.idx:
+    #                 continue
+    #             if "Status" in device:
+    #                 self.state = device["Status"] == "On"
+    #     return self.state
 
 
 
 def onStart():
     global z
     global pluginDevices
-    # prod
-    # from DomoticzWrapperClass import \
-    # dev
-    # from DomoticzWrapper.DomoticzWrapperClass import \
-    #     DomoticzTypeName, DomoticzDebugLevel, DomoticzPluginParameters, \
-    #     DomoticzWrapper, DomoticzDevice, DomoticzConnection, DomoticzImage, \
-    #     DomoticzDeviceType
-
-    # dev
-    # from DomoticzWrapper.DomoticzPluginHelper import \
-    # prod
     from DomoticzPluginHelper import \
         DomoticzPluginHelper, DeviceParam, ParseCSV, DomoticzDeviceTypes
 
@@ -173,13 +125,18 @@ def onStart():
 
     LightSwitch_Switch_Blinds = DomoticzDeviceTypes.LightSwitch_Switch_Blinds()
 
-    z.InitDevice('Shutter Control', DeviceUnits.DeviceSwitch,
-                 DeviceType=LightSwitch_Switch_Blinds,
-                 Used=True,
-                 defaultNValue=0,
-                 defaultSValue="0")
+    shutterIds = [x.strip() for x in z.Parameters.Mode2.split(',') if len(x.strip()) > 0]
+    deviceUnit = 1
 
-    pluginDevices = PluginDevices()
+    for shutterId in shutterIds:
+        z.InitDevice('Shutter Control ' + deviceUnit, deviceUnit,
+                    DeviceType=LightSwitch_Switch_Blinds,
+                    Used=True,
+                    defaultNValue=0,
+                    defaultSValue="0")
+        deviceUnit = deviceUnit + 1
+
+    pluginDevices = PluginDevices(shutterIds)
 
 
 def onStop():
@@ -198,8 +155,7 @@ def onCommand(Unit, Command, Level, Color):
         value = 0
     else:
         value = Level
-    du = DeviceUnits(Unit)
-    pluginDevices.shutter.SetValue(value)
+    pluginDevices.shutters[(int(Unit))].SetValue(value)
 
 
 def onHeartbeat():
